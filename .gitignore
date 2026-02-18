@@ -40,3 +40,11 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Tizen build output
+/tizen/output
+*.wgt
+
+# Environment/secrets (don't commit credentials!)
+.env
+.env.local
