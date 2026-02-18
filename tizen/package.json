@@ -1,0 +1,11 @@
+{
+  "name": "iptv-player-tizen",
+  "version": "1.0.0",
+  "description": "IPTV Player for Samsung Tizen TV",
+  "main": "index.html",
+  "author": "Skander",
+  "tizen": {
+    "appId": "IPTVPlayer.app",
+    "package": "IPTVPlayer"
+  }
+}

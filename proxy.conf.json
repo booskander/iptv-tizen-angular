@@ -1,0 +1,40 @@
+{
+  "/api": {
+    "target": "http://ky-tv.cc",
+    "secure": false,
+    "changeOrigin": true,
+    "followRedirects": true,
+    "pathRewrite": {
+      "^/api": ""
+    },
+    "headers": {
+      "Origin": "http://ky-tv.cc",
+      "Referer": "http://ky-tv.cc/"
+    }
+  },
+  "/live": {
+    "target": "http://ky-tv.cc",
+    "secure": false,
+    "changeOrigin": true,
+    "followRedirects": true
+  },
+  "/movie": {
+    "target": "http://ky-tv.cc",
+    "secure": false,
+    "changeOrigin": true,
+    "followRedirects": true
+  },
+  "/series": {
+    "target": "http://ky-tv.cc",
+    "secure": false,
+    "changeOrigin": true,
+    "followRedirects": true
+  },
+  "/**": {
+    "target": "http://ky-tv.cc",
+    "secure": false,
+    "changeOrigin": true,
+    "followRedirects": true,
+    "bypass": "function(req, res, proxyOptions) { if (req.url.startsWith('/live') || req.url.startsWith('/movie') || req.url.startsWith('/series') || req.url.startsWith('/api') || req.url.startsWith('/get.php')) { return null; } return req.url; }"
+  }
+}

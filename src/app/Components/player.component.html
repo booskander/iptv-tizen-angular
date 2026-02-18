@@ -1,0 +1,160 @@
+<div class="tv-player-root" (mousemove)="showControls()" (click)="toggleControls()">
+  <!-- Fullscreen Video -->
+  <div class="video-container">
+    @if (selectedChannel) {
+      <video
+        #video
+        class="main-video"
+        playsinline
+        autoplay
+      ></video>
+      <!-- Loading Spinner -->
+      @if (isBuffering) {
+        <div class="video-loading">
+          <div class="spinner"></div>
+          <div class="loading-text">Loading...</div>
+        </div>
+      }
+    } @else {
+      <div class="video-placeholder">
+        <div class="placeholder-icon">📺</div>
+        <div class="placeholder-text">Welcome to IPTV</div>
+        <div class="placeholder-hint">Press → or click the menu to browse channels</div>
+      </div>
+    }
+  </div>
+
+  <!-- Stream Error -->
+  @if (error && selectedChannel) {
+    <div class="stream-error">{{ error }}</div>
+  }
+
+  <!-- Sidebar Toggle -->
+  <button
+    class="sidebar-toggle"
+    [class.visible]="controlsVisible || !selectedChannel"
+    (click)="toggleSidebar(); $event.stopPropagation()"
+    aria-label="Toggle channel list"
+  >
+    @if (sidebarOpen) { ✕ } @else { ☰ }
+  </button>
+
+  <!-- Controls Overlay (Now Playing) -->
+  @if (selectedChannel) {
+    <div class="controls-overlay" [class.visible]="controlsVisible">
+      <div class="now-playing-bar">
+        @if (selectedChannel.logo) {
+          <img [src]="selectedChannel.logo" class="channel-logo-large" alt="" />
+        } @else {
+          <div class="channel-logo-large-placeholder">📺</div>
+        }
+        <div class="now-playing-info">
+          <div class="now-playing-label">Now Playing</div>
+          <div class="now-playing-title">{{ selectedChannel.name }}</div>
+          @if (selectedChannel.group) {
+            <div class="now-playing-group">{{ selectedChannel.group }}</div>
+          }
+        </div>
+        <div class="controls-hint">
+          <span class="hint-key">←</span> Channels
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Channel Sidebar -->
+  <aside class="sidebar" [class.open]="sidebarOpen">
+    <!-- Header -->
+    <div class="sidebar-header">
+      <h1 class="sidebar-title">
+        <span class="sidebar-title-icon">📺</span>
+        IPTV
+      </h1>
+      <!-- Search -->
+      <div class="search-container">
+        <span class="search-icon">🔍</span>
+        <input
+          #searchInput
+          type="text"
+          class="search-input"
+          placeholder="Search channels..."
+          [(ngModel)]="searchQuery"
+          (input)="onSearch()"
+          (keydown)="onSearchKeydown($event)"
+        />
+      </div>
+    </div>
+
+    <!-- Group Tabs -->
+    @if (groups.length > 1) {
+      <div class="group-tabs">
+        <button
+          class="group-tab"
+          [class.active]="selectedGroup === ''"
+          (click)="selectGroup(''); $event.stopPropagation()"
+        >
+          All
+        </button>
+        @for (group of groups.slice(0, showMoreGroups ? groups.length : 8); track group) {
+          <button
+            class="group-tab"
+            [class.active]="selectedGroup === group"
+            (click)="selectGroup(group); $event.stopPropagation()"
+          >
+            {{ group }}
+          </button>
+        }
+        @if (groups.length > 8) {
+          <button class="more-groups-btn" (click)="showMoreGroups = !showMoreGroups; $event.stopPropagation()">
+            {{ showMoreGroups ? '◀ Less' : 'More ▶' }}
+          </button>
+        }
+      </div>
+    }
+
+    <!-- Channel List -->
+    <div class="channel-list-container">
+      <div class="channel-count">{{ filteredChannels.length | number }} channels</div>
+
+      @if (loading) {
+        <div class="loading-state">
+          <div class="loading-spinner">⏳</div>
+          <p>Loading channels...</p>
+        </div>
+      } @else if (error && !selectedChannel) {
+        <div class="error-state">
+          <div class="error-icon">⚠️</div>
+          <p>{{ error }}</p>
+          <button class="retry-btn" (click)="loadPlaylist()">Retry</button>
+        </div>
+      } @else {
+        <cdk-virtual-scroll-viewport itemSize="80" class="channel-list-viewport">
+          <div
+            *cdkVirtualFor="let channel of filteredChannels; trackBy: trackByUrl"
+            class="channel-item"
+            [class.active]="selectedChannel?.url === channel.url"
+            (click)="playChannel(channel); $event.stopPropagation()"
+            (keydown)="onChannelKeydown($event, channel)"
+            tabindex="0"
+            role="button"
+          >
+            @if (channel.logo) {
+              <img [src]="channel.logo" class="channel-logo" alt="" loading="lazy" />
+            } @else {
+              <div class="channel-logo-placeholder">📺</div>
+            }
+            <div class="channel-info">
+              <div class="channel-name">{{ channel.name }}</div>
+              @if (channel.group) {
+                <div class="channel-group">{{ channel.group }}</div>
+              }
+            </div>
+            @if (selectedChannel?.url === channel.url) {
+              <div class="play-indicator">▶</div>
+            }
+          </div>
+        </cdk-virtual-scroll-viewport>
+      }
+    </div>
+  </aside>
+</div>
